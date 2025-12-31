@@ -3,36 +3,8 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-import smtplib
 from datetime import datetime
-from email.mime.text import MIMEText
-from database_helper import fetch_data_from_sql
 
-def send_alert(channel_name, status):
-    # Konfigurasi Pengirim (Gunakan App Password jika menggunakan Gmail)
-    sender_email = st.secrets["EMAIL_USER"]
-    password = st.secrets["EMAIL_PASS"]
-
-    msg = MIMEText(f"PERINGATAN: Sistem {channel_name} dalam kondisi {status}!")
-    msg['Subject'] = f"🚨 Alert: {channel_name} Failure"
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-
-    try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-        return True
-    except Exception as e:
-        print(f"Gagal mengirim email: {e}")
-        return False
-
-# Logika pengecekan di dalam dashboard
-for index, row in df.iterrows():
-    if row['Status'] == 'Critical':
-        # Kita gunakan st.toast untuk notifikasi di UI
-        st.toast(f"Mengirim email peringatan untuk {row['Channel']}...", icon="📧")
-        # Panggil fungsi send_alert(row['Channel'], row['Status'])
 # Konfigurasi Halaman
 st.set_page_config(page_title="Delivery Channel Monitoring", layout="wide")
 
