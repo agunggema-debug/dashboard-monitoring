@@ -28,6 +28,7 @@ def send_alert(channel_name, status):
         st.error(f"Gagal mengirim notifikasi: {e}")
         return False
 
+
 # Konfigurasi Halaman
 st.set_page_config(page_title="Delivery Channel Monitoring", layout="wide")
 
