@@ -3,7 +3,30 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import smtplib
+from email.mime.text import MIMEText
 from datetime import datetime
+
+def send_alert(channel_name, status):
+    # Mengambil data dari secrets secara aman
+    sender_email = st.secrets["EMAIL_USER"]
+    password = st.secrets["EMAIL_PASS"]
+    receiver_email = st.secrets["EMAIL_RECEIVER"]
+
+    msg = MIMEText(f"Sistem {channel_name} terdeteksi dalam status {status}.")
+    msg['Subject'] = f"🚨 ALERT: {channel_name} Is {status}"
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+
+    try:
+        # Gunakan port 465 untuk SSL
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+        return True
+    except Exception as e:
+        st.error(f"Gagal mengirim notifikasi: {e}")
+        return False
 
 # Konfigurasi Halaman
 st.set_page_config(page_title="Delivery Channel Monitoring", layout="wide")
@@ -50,14 +73,12 @@ left_chart, right_chart = st.columns(2)
 
 with left_chart:
     st.subheader("Volume Transaksi per Channel")
-    fig_bar = px.bar(df, x='Channel', y='Transactions', color='Channel', 
-                     text_auto='.2s', template="plotly_dark")
+    fig_bar = px.bar(df, x='Channel', y='Transactions', color='Channel', text_auto='.2s', template="plotly_dark")
     st.plotly_chart(fig_bar, use_container_width=True)
 
 with right_chart:
     st.subheader("Analisis Latency (Response Time)")
-    fig_line = px.line(df, x='Channel', y='Response_Time_ms', markers=True, 
-                       line_shape="spline", template="plotly_dark")
+    fig_line = px.line(df, x='Channel', y='Response_Time_ms', markers=True,line_shape="spline", template="plotly_dark")
     fig_line.update_traces(line_color='#00FFCC')
     st.plotly_chart(fig_line, use_container_width=True)
 
